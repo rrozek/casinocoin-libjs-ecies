@@ -1,0 +1,24 @@
+{
+    "secp256k1": {
+        "sender": {
+            "account_id" : "cPP8dENKfjWgs7o2FLEbMJXm5gukZsgKyF",
+            "master_seed" : "saEVBmTzTU6hbaocWnhN3nPgDCmC6",
+            "public_key_hex" : "023EDE3097F081E80FDA5EA1546CFAB71CDE9ABC39898DB890BD9DA291D2BDE901"
+        },
+        "receiver": {
+            "account_id" : "cnDeP8QQ7sYHhJZ4rtpoFNPhcFaW68AEf5",
+            "master_seed" : "sstDaebuQLCgnnugSK76Dh2Zbmnfq",
+            "public_key_hex" : "03D28E0BC413D18D18A27197A8C4CB63A447AE07009694C0EBDD0887905A5F2A37"
+        },
+        "middleman": {
+            "account_id" : "c4jy7NthNYKfv9cEova1XbXb6W9bfrx8Ed",
+            "master_seed" : "spkyFVmLHNK4HmbNkkGmrE8R5pDFJ",
+            "public_key_hex" : "02D38F7721B15BDD5AE04A916335D574D82425E0C9BE005C7FB2F00DCB0C794878"      
+        }
+    },
+    "message": [
+        "Hi buddy",
+        "SpecialCharParty!&%$*(@)#($*/>,.",
+        "Ok, bye!"
+    ]
+}

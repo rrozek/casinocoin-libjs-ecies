@@ -1,0 +1,35 @@
+{
+  "name": "casinocoin-libjs-ecies",
+  "version": "1.0.0",
+  "description": "Casinocoin elliptic curve cryptography package.",
+  "main": "index.js",
+  "dependencies": {
+    "bluebird": "^3.1.4",
+    "casinocoin-libjs-keypairs": "^1.0.2",
+    "mocha": "^5.2.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rrozek/casinocoin-libjs-ecies.git"
+  },
+  "keywords": [
+    "casinocoin",
+    "csc",
+    "ecies",
+    "elliptic",
+    "ecdh",
+    "ecdsa",
+    "crypto",
+    "secp256k1",
+    "curve"
+  ],
+  "author": "Jakub Rojek",
+  "license": "MIT License",
+  "bugs": {
+    "url": "https://github.com/rrozek/casinocoin-libjs-ecies/issues"
+  },
+  "homepage": "https://github.com/rrozek/casinocoin-libjs-ecies#readme"
+}
