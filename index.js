@@ -42,7 +42,7 @@ function equalConstTime(b1, b2) {
 /**
  * Derive shared secret for given private and public keys.
  * @param {Buffer} privateKeyA - Sender's private key (32 bytes)
- * @param {Buffer} publicKeyB - Recipient's public key (65 bytes)
+ * @param {Buffer} publicKeyB - Recipient's public key (33 bytes)
  * @return {Promise.<Buffer>} A promise that resolves with the derived
  * shared secret (Px, 32 bytes) and rejects on bad key.
  */
@@ -56,18 +56,22 @@ function derive(privateKeyA, publicKeyB) {
 
 /**
  * Encrypt message for given recepient's public key.
- * @param {string} secretFrom - base58 encoded seed
  * @param {Buffer} publicKeyTo - public key of message recipient
  * @param {Buffer} msg - The message being encrypted
+ * @param {string} secretFrom - base58 encoded seed OPTIONAL
  * @return {Promise.<Buffer>} - A promise that resolves with the 
- * {Buffer} consisting of 16byte IV, 32byte encrypted mac for integrity check 
+ * {Buffer} consisting of 33 byte pubKey, 16byte IV, 32byte encrypted mac for integrity check 
  * and encrypted message payload on successful encryption and rejects on failure.
  */
-exports.encrypt = function(secretFrom, publicKeyTo, msg) {
-  return new Promise(function(resolve) {
+exports.encrypt = function(publicKeyTo, msg, secretFrom) {
+    if (typeof secretFrom === 'undefined') { 
+      var seedGenOptions = { "algorithm": 'secp256k1' }
+      secretFrom = keypairs.generateSeed(seedGenOptions); 
+    }
 	var keyPairFrom = keypairs.deriveKeypair(secretFrom);  
 	var privateKeyFrom = keyPairFrom.privateKey.slice(2)
 	var publicKeyFrom = keyPairFrom.publicKey
+  return new Promise(function(resolve) {
     resolve(derive(Buffer.from(privateKeyFrom, 'hex'), publicKeyTo));
   })
   .then(function(Px) {
@@ -77,29 +81,28 @@ exports.encrypt = function(secretFrom, publicKeyTo, msg) {
     var macKey = hash.slice(32);
     var mac = hmacSha256(macKey, msg);
     var ciphertext = aes256CbcEncrypt(iv, encryptionKey, Buffer.concat([mac,msg]));
-    return Buffer.concat([iv, ciphertext]);
+    return Buffer.concat([Buffer.from(publicKeyFrom, 'hex'), iv, ciphertext]);
   });
 };	
 
 /**
  * Decrypt message using given private key.
  * @param {string} secretTo - base58 encoded seed
- * @param {Buffer} publicKeyFrom - public key of message recipient
  * @param {Buffer} ciphertext - encrypted message 
- * (consists of 16byte IV, 32byte encrypted mac for integrity check and encrypted message payload)
+ * (consists of 33 byte pubKey, 16byte IV, 32byte encrypted mac for integrity check and encrypted message payload)
  * @return {Promise.<Buffer>} - A promise that resolves with the
  * plaintext on successful decryption and rejects on failure.
  */
-exports.decrypt = function(secretTo, publicKeyFrom, ciphertext) {
+exports.decrypt = function(secretTo, ciphertext) {
 	var keyPairTo = keypairs.deriveKeypair(secretTo);  
 	var privateKeyTo = keyPairTo.privateKey.slice(2)
 	var publicKeyTo = keyPairTo.publicKey
-  return derive(Buffer.from(privateKeyTo, 'hex'), publicKeyFrom).then(function(Px) {
+  return derive(Buffer.from(privateKeyTo, 'hex'), ciphertext.slice(0, 33)).then(function(Px) {
     var hash = sha512(Px);	
     var encryptionKey = hash.slice(0, 32);
 	var macKey = hash.slice(32);
-    var iv = ciphertext.slice(0,16);
-	var ret = aes256CbcDecrypt(iv, encryptionKey, ciphertext.slice(16));
+    var iv = ciphertext.slice(33, 33 + 16);
+	var ret = aes256CbcDecrypt(iv, encryptionKey, ciphertext.slice(33 + 16));
 	var mac = ret.slice(0,32);
 	var msg = ret.slice(32);
     var realMac = hmacSha256(macKey, msg);
